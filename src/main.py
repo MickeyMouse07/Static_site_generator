@@ -1,9 +1,8 @@
 from textnode import TextNode, text_type_bold
 
 def main():
-    testA = TextNode("text sample", text_type_bold, 'https://test.com')
-    testB = TextNode("text samples", text_type_bold, 'https://test.com')
-    print(repr(testA))
+     node = TextNode("This is a text node", text_type_bold, "https://www.boot.dev")
+     print(node)
 
 
 main()
