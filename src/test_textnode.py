@@ -1,6 +1,7 @@
 import unittest
 
 from textnode import *
+from leafnode import *
 
 
 class TestTextNode(unittest.TestCase):
@@ -31,6 +32,12 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(
             "TextNode(This is a text node, text, https://www.boot.dev)", repr(node)
         )
+
+    
+    def test_leaf_to_html_p(self):
+        node = LeafNode("p", "Hello, world!")
+        self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
+
 
 
 if __name__ == "__main__":
