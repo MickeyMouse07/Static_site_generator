@@ -1,4 +1,9 @@
+import re
 from enum import Enum
+from inline_markdown import text_to_textnodes
+from textnode import (TextNode, TextType, text_node_to_html_node)
+from htmlnode import (ParentNode, LeafNode)
+
 
 
 class BlockType(Enum):
@@ -76,6 +81,107 @@ def block_to_block_type(textBlock):
     return BlockType.PARAGRAPH   
        
 
+def text_to_children(text):
+    toTextNode = text_to_textnodes(text)
+    result = []
+    
+    for eachNode in toTextNode:
+        html_node = text_node_to_html_node(eachNode)
+        result.append(html_node)
+        
+
+    return result
 
 
            
+def markdown_to_html_node(markdown):
+    block = markdown_to_blocks(markdown)
+    children= []
+
+    for eachItem in block:
+        typeBlock = block_to_block_type(eachItem)
+        #child = text_to_children(eachItem)
+        
+        if typeBlock == BlockType.PARAGRAPH:
+            lines = eachItem.split("\n")
+            paragraph = " ".join(lines)
+            paraNode = text_to_children(paragraph)
+            node = ParentNode("p", paraNode)
+            lines = eachItem.split("\n")
+            children.append(node)
+
+        if typeBlock == BlockType.QUOTE:
+            new_lines = []
+            lines = eachItem.split("\n")
+            for line in lines:
+                if not line.startswith(">"):
+                    raise ValueError("invalid quote block")
+                new_lines.append(line.lstrip(">").strip())
+            content = " ".join(new_lines)
+            Qblock = text_to_children(content)
+
+            node = ParentNode("blockquote", Qblock)
+            children.append(node)
+
+        if typeBlock == BlockType.UNORDERED_LIST:
+            items = eachItem.strip().split("-")
+            listItem = []
+
+            for item in items:  
+                if item != "":
+                    child = text_to_children(item.strip("\n").strip())
+                    innerNode = ParentNode("li", child)
+                    listItem.append(innerNode)
+                   
+            node = ParentNode("ul", listItem)
+            children.append(node)
+
+
+        
+        if typeBlock == BlockType.ORDERED_LIST: 
+            items = re.split(r"^\d+\. ", eachItem.strip(), flags=re.MULTILINE)
+            listItem = []
+
+            for item in items:  
+                if item != "":
+                    child = text_to_children(item.strip())
+                    innerNode = ParentNode("li", child)
+                    listItem.append(innerNode)
+                   
+            node = ParentNode("ol", listItem)
+            children.append(node)
+
+
+        if typeBlock == BlockType.CODE:
+            if not eachItem.startswith("```") or not eachItem.endswith("```"):
+                raise ValueError("invalid code block")
+            
+            txt = eachItem[4:-3]
+            child = [text_node_to_html_node(TextNode(txt, TextType.CODE))]    
+            node = ParentNode("pre", child)
+            children.append(node)
+
+
+        if typeBlock == BlockType.HEADING:
+            numTag = 0
+            while numTag <= len(eachItem) and eachItem[numTag] == "#":
+                numTag += 1
+            
+            
+            txt = eachItem[numTag + 1:]
+
+            child = text_to_children(txt)
+
+            node = ParentNode(f"h{numTag}", child)
+            
+            children.append(node)
+
+
+    bigNode = ParentNode("div", children, None)
+    return bigNode
+
+        
+
+
+
+
