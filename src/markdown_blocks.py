@@ -43,10 +43,10 @@ def block_to_block_type(textBlock):
         if blockSplit[-1].startswith('```'):
             return BlockType.CODE
         
-    if textBlock.startswith("> "):
+    if textBlock.startswith(">"):
         codeA = True
         for line in blockSplit:
-            if not line.strip().startswith("> "):
+            if not line.strip().startswith(">"):
                 codeA = False
                 break
 
@@ -100,7 +100,6 @@ def markdown_to_html_node(markdown):
 
     for eachItem in block:
         typeBlock = block_to_block_type(eachItem)
-        #child = text_to_children(eachItem)
         
         if typeBlock == BlockType.PARAGRAPH:
             lines = eachItem.split("\n")
@@ -181,6 +180,20 @@ def markdown_to_html_node(markdown):
     return bigNode
 
         
+def extract_title(markdown):
+    block = markdown_to_blocks(markdown)
+
+    for eachItem in block:
+        splitLine = eachItem.split("\n")
+
+        for each in splitLine:
+            each = each.strip()
+            if each.startswith("# "):
+                return each[2:].strip()
+ 
+    raise ValueError("No h1 value found")
+    
+
 
 
 
