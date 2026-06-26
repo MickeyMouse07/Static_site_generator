@@ -16,21 +16,23 @@ def main():
     base_dir = os.path.dirname(os.path.dirname(__file__))
    
     static_path = os.path.join(base_dir, "static")
-    public_path = os.path.join(base_dir, "public")
+    # change "public" to "doc" for github page
+    public_path = os.path.join(base_dir, "docs")
     
     #file path for generatePage recursive
     dir_path_content = os.path.join(base_dir,"content")
     template_path = os.path.join(base_dir, "template.html")
-    dest_dir_path = os.path.join(base_dir, "public")
+    # change "public" to "doc" for github page
+    #dest_dir_path = os.path.join(base_dir, "docs")
 
 
     if os.path.exists(public_path):
-        logging.info("Delete public folder successfully!")
+        logging.info("Delete the destination folder successfully!")
         shutil.rmtree(public_path)
 
     os.makedirs(public_path)    
     copyStatic(static_path, public_path)
-    generate_pages_recursive(dir_path_content,template_path,dest_dir_path, basepath)
+    generate_pages_recursive(dir_path_content,template_path, public_path, basepath)
 
 
 main()
