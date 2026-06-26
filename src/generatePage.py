@@ -1,5 +1,4 @@
 import os
-import shutil
 import logging
 from markdown_blocks import markdown_to_html_node,extract_title
 
@@ -10,8 +9,7 @@ logging.basicConfig(
     filename = os.path.join("log", "filecopy.log"),
     )
 
-def generate_page(from_path, template_path, dest_path):
-    #print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+def generate_page(from_path, template_path, dest_path, basepath):
     logging.info(f"Generating page: {from_path} -> {dest_path} using {template_path}")
     
 
@@ -30,6 +28,8 @@ def generate_page(from_path, template_path, dest_path):
 
     newMarkdown = templeteFile.replace("{{ Title }}", xTiltle)
     newMarkdown = newMarkdown.replace("{{ Content }}", htmlContent)
+    newMarkdown = newMarkdown.replace('href="/', f'href="{basepath}')
+    newMarkdown = newMarkdown.replace('src="/', f'src="{basepath}')
 
     os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 
@@ -37,7 +37,8 @@ def generate_page(from_path, template_path, dest_path):
          f.write(newMarkdown)
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
+    
    
     for item in os.listdir(dir_path_content):
         src_path = os.path.join(dir_path_content, item)
@@ -46,7 +47,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
 
         if os.path.isfile(src_path):
             if item.endswith(".md"):
-                generate_page(src_path, template_path, mdFile)
+                generate_page(src_path, template_path, mdFile, basepath)
                 
 
         else:
@@ -54,7 +55,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
                 logging.info(f"Create dir: {dst_path}")
                 os.makedirs(dst_path)
 
-            generate_pages_recursive(src_path, template_path, dst_path)
+            generate_pages_recursive(src_path, template_path, dst_path, basepath)
 
 
     
